@@ -1,0 +1,8 @@
+prefix=/home/bioinlab/ada_visual_ws/install
+
+Name: ada_visual_control
+Description: Description of ada_visual_control
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
