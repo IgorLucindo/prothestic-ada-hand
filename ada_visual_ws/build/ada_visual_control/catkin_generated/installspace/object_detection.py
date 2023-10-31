@@ -16,7 +16,7 @@ focal_length_mm = 510 # Focal length of the camera in millimeters
 window_size = 30
 stride = 10
 detection_counts = {}
-framesUntilDetection = 15
+framesUntilDetection = 8
 start_time = time.time()
 object_positions = {}
 frameMsg = ""
@@ -40,7 +40,9 @@ classes = [
 
 objects = {
     'bottle': {'width_mm': 60, 'grasp': 'Power'},
-    'cell phone': {'width_mm': 70, 'grasp': 'Power'}
+    'cell phone': {'width_mm': 70, 'grasp': 'Power'},
+    'banana': {'width_mm': 30, 'grasp': 'Pinch'},
+    'apple': {'width_mm': 50, 'grasp': 'Power'},
 }
 
 curr_obj = {
@@ -92,7 +94,10 @@ def resetObject():
 # choose the object with highest score
 def setCurrentObject(scores, labels, boxes):
     for i in range(len(labels)):
-        if scores[i].item() > curr_obj['score']:
+        if classes[labels[i].item()] not in objects:
+            continue
+
+        if scores[i].item() > max(curr_obj['score'], 0.25):
             # set current object atributes
             curr_obj['score'] = scores[i].item()
             curr_obj['name'] = classes[labels[i].item()]

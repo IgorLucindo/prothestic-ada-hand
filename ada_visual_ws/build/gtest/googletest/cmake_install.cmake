@@ -2,7 +2,7 @@
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/bioinlab/ada_visual_ws/install")
+  set(CMAKE_INSTALL_PREFIX "/home/bioinlab/Desktop/carlosIgor/prothestic_ada_hand/ada_visual_ws/install")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 

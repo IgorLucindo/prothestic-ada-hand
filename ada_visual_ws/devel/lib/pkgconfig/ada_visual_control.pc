@@ -1,4 +1,4 @@
-prefix=/home/bioinlab/ada_visual_ws/devel
+prefix=/home/bioinlab/Desktop/carlosIgor/prothestic_ada_hand/ada_visual_ws/devel
 
 Name: ada_visual_control
 Description: Description of ada_visual_control

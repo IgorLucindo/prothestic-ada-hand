@@ -49,7 +49,7 @@ class KalmanFilter:
 
 
 # Kalman Filter
-kf = KalmanFilter()
+kalmanFilter = KalmanFilter()
 
 predictions = []
 
@@ -62,8 +62,8 @@ def cbGraspDetection(message):
     # if there is an object
     if message.data[0]:
         # update and predict
-        kf.update(message.data[0], message.data[1])
-        predDist, predVel = kf.predict()
+        kalmanFilter.update(message.data[0], message.data[1])
+        predDist, predVel = kalmanFilter.predict()
 
         # reset count when object is detected
         count = 0
@@ -71,7 +71,7 @@ def cbGraspDetection(message):
     else:
         # set predicted distances array
         if message.data[0] != prevDist:
-            predDistArray = kf.getNextStates(statesNum)
+            predDistArray = kalmanFilter.getNextStates(statesNum)
 
             # set 'predDistArray' in predictions array for debug purposes
             predictions.insert(0, predDistArray)

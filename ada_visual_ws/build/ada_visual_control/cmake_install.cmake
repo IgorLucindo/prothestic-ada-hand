@@ -1,8 +1,8 @@
-# Install script for directory: /home/bioinlab/ada_visual_ws/src/ada_visual_control
+# Install script for directory: /home/bioinlab/Desktop/carlosIgor/prothestic_ada_hand/ada_visual_ws/src/ada_visual_control
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/bioinlab/ada_visual_ws/install")
+  set(CMAKE_INSTALL_PREFIX "/home/bioinlab/Desktop/carlosIgor/prothestic_ada_hand/ada_visual_ws/install")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -43,25 +43,25 @@ if(NOT DEFINED CMAKE_OBJDUMP)
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/bioinlab/ada_visual_ws/build/ada_visual_control/catkin_generated/installspace/ada_visual_control.pc")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/pkgconfig" TYPE FILE FILES "/home/bioinlab/Desktop/carlosIgor/prothestic_ada_hand/ada_visual_ws/build/ada_visual_control/catkin_generated/installspace/ada_visual_control.pc")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ada_visual_control/cmake" TYPE FILE FILES
-    "/home/bioinlab/ada_visual_ws/build/ada_visual_control/catkin_generated/installspace/ada_visual_controlConfig.cmake"
-    "/home/bioinlab/ada_visual_ws/build/ada_visual_control/catkin_generated/installspace/ada_visual_controlConfig-version.cmake"
+    "/home/bioinlab/Desktop/carlosIgor/prothestic_ada_hand/ada_visual_ws/build/ada_visual_control/catkin_generated/installspace/ada_visual_controlConfig.cmake"
+    "/home/bioinlab/Desktop/carlosIgor/prothestic_ada_hand/ada_visual_ws/build/ada_visual_control/catkin_generated/installspace/ada_visual_controlConfig-version.cmake"
     )
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ada_visual_control" TYPE FILE FILES "/home/bioinlab/ada_visual_ws/src/ada_visual_control/package.xml")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/share/ada_visual_control" TYPE FILE FILES "/home/bioinlab/Desktop/carlosIgor/prothestic_ada_hand/ada_visual_ws/src/ada_visual_control/package.xml")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/ada_visual_control" TYPE PROGRAM FILES "/home/bioinlab/ada_visual_ws/build/ada_visual_control/catkin_generated/installspace/object_detection.py")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/ada_visual_control" TYPE PROGRAM FILES "/home/bioinlab/Desktop/carlosIgor/prothestic_ada_hand/ada_visual_ws/build/ada_visual_control/catkin_generated/installspace/object_detection.py")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT STREQUAL "Unspecified" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/ada_visual_control" TYPE PROGRAM FILES "/home/bioinlab/ada_visual_ws/build/ada_visual_control/catkin_generated/installspace/validation.py")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/ada_visual_control" TYPE PROGRAM FILES "/home/bioinlab/Desktop/carlosIgor/prothestic_ada_hand/ada_visual_ws/build/ada_visual_control/catkin_generated/installspace/validation.py")
 endif()
 

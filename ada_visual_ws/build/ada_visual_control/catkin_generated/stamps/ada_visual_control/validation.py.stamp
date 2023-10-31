@@ -7,9 +7,9 @@ from std_msgs.msg import Float32MultiArray
 
 
 detect_distance_mm = 80
-statesNum = 3
+statesNum = 5
 
-graspMsg = ''
+graspMsg = ""
 predDist = 0
 predVel = 0
 predDistArray = []

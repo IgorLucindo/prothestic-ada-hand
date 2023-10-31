@@ -67,14 +67,14 @@ set(ada_visual_control_CONFIG_INCLUDED TRUE)
 
 # set variables for source/devel/install prefixes
 if("FALSE" STREQUAL "TRUE")
-  set(ada_visual_control_SOURCE_PREFIX /home/bioinlab/ada_visual_ws/src/ada_visual_control)
-  set(ada_visual_control_DEVEL_PREFIX /home/bioinlab/ada_visual_ws/devel)
+  set(ada_visual_control_SOURCE_PREFIX /home/bioinlab/Desktop/carlosIgor/prothestic_ada_hand/ada_visual_ws/src/ada_visual_control)
+  set(ada_visual_control_DEVEL_PREFIX /home/bioinlab/Desktop/carlosIgor/prothestic_ada_hand/ada_visual_ws/devel)
   set(ada_visual_control_INSTALL_PREFIX "")
   set(ada_visual_control_PREFIX ${ada_visual_control_DEVEL_PREFIX})
 else()
   set(ada_visual_control_SOURCE_PREFIX "")
   set(ada_visual_control_DEVEL_PREFIX "")
-  set(ada_visual_control_INSTALL_PREFIX /home/bioinlab/ada_visual_ws/install)
+  set(ada_visual_control_INSTALL_PREFIX /home/bioinlab/Desktop/carlosIgor/prothestic_ada_hand/ada_visual_ws/install)
   set(ada_visual_control_PREFIX ${ada_visual_control_INSTALL_PREFIX})
 endif()
 
@@ -154,7 +154,7 @@ foreach(library ${libraries})
     set(lib_path "")
     set(lib "${library}-NOTFOUND")
     # since the path where the library is found is returned we have to iterate over the paths manually
-    foreach(path /home/bioinlab/ada_visual_ws/install/lib;/home/bioinlab/ada_visual_ws/devel/lib;/opt/ros/noetic/lib)
+    foreach(path /home/bioinlab/Desktop/carlosIgor/prothestic_ada_hand/ada_visual_ws/install/lib;/home/bioinlab/Desktop/carlosIgor/prothestic_ada_hand/ada_visual_ws/devel/lib;/opt/ros/noetic/lib)
       find_library(lib ${library}
         PATHS ${path}
         NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)

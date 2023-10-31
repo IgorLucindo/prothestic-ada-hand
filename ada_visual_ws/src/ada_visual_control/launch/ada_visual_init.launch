@@ -4,7 +4,3 @@
   <node name="serial_node" pkg="rosserial_python" type="serial_node.py" output="screen"/>
 	<include file="$(find ada_visual_control)/launch/init_camera.launch"/>
 </launch>
-
-
-  <!--node name="object_detection" pkg="ada_visual_control" type="grasp_type_publisher.py" output="screen" /-->
-  <!--node name="object_detection" pkg="ada_visual_control" type="grasp_detection_publisher.py" output="screen" /-->
