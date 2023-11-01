@@ -1,12 +1,11 @@
-import numpy as np
-import cv2
+# all distances in mm
 import rospy
 from std_msgs.msg import String
 from std_msgs.msg import Float32MultiArray
-# from kalmanfilter import KalmanFilter
+from ada_visual_control.classes.kalmanfilter import KalmanFilter
 
 
-detect_distance_mm = 80
+detect_distance = 80
 statesNum = 5
 
 graspMsg = ""
@@ -15,38 +14,6 @@ predVel = 0
 predDistArray = []
 prevDist = 0
 count = 0
-
-
-class KalmanFilter:
-    kf = cv2.KalmanFilter(4, 2)
-    kf.measurementMatrix = np.array([[1, 0, 0, 0], [0, 1, 0, 0]], np.float32)
-    kf.transitionMatrix = np.array([[1, 0, 1, 0], [0, 1, 0, 1], [0, 0, 1, 0], [0, 0, 0, 1]], np.float32)
-
-
-    def predict(self):
-        ''' This function estimates the position of the object'''
-        predicted = self.kf.predict()
-        x, y = np.float32(predicted[0][0]), np.float32(predicted[1][0])
-        return x, y
-    
-
-    def update(self, coordX, coordY):
-        measured = np.array([[np.float32(coordX)], [np.float32(coordY)]])
-        self.kf.correct(measured)
-
-
-    def getNextStates(self, statesNum):
-        predictions = []
-        for _ in range(statesNum):
-            # Predict the next state
-            prediction = self.kf.predict()
-            # Get the updated state estimate
-            state = self.kf.statePost
-            predictions.append(prediction[0][0])
-            # Set the current state as the new initial state for the next prediction
-            self.kf.statePre = state
-        return predictions
-
 
 # Kalman Filter
 kalmanFilter = KalmanFilter()
@@ -104,7 +71,7 @@ def cbGraspType(message):
 
 def cb():
     # conditions to grasp
-    if predDist <= detect_distance_mm and predDist:
+    if predDist <= detect_distance and predDist:
         # publish to grasp topic
         grasp_pub.publish(graspMsg)
 

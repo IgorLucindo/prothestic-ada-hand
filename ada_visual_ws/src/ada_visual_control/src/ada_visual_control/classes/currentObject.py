@@ -29,13 +29,8 @@ class CurrentObject:
         self.vel = 0
 
     # choose the object with highest score
-    def setObject(self, results, deltaTime, resetGraspTimer):
+    def setObject(self, boxes, labels, scores, deltaTime, resetGraspTimer):
         self.detected = False
-
-        # get objects atributes
-        boxes = results[0]['boxes']
-        labels = results[0]['labels']
-        scores = results[0]['scores']
 
         # choose current object
         self.score = 0

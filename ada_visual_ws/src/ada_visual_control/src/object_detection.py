@@ -6,40 +6,30 @@ from std_msgs.msg import String
 from std_msgs.msg import Float32MultiArray
 import cv2
 import torch
-from torchvision.models.detection import ssdlite320_mobilenet_v3_large
-import torchvision.transforms as T
-from PIL import Image
+from deepsparse import compile_model
+from ada_visual_control.utils.deepsparse_utils import (
+    modify_yolo_onnx_input_shape,
+    postprocess_nms
+)
+from typing import Union
 import time
 from ada_visual_control.classes.currentObject import CurrentObject
 
 
-
+image_shape = (416, 416)
 # camera focal length
 focal_length = 510
 
 # load model
-model = ssdlite320_mobilenet_v3_large(pretrained=True)
-model.eval()
-
-transform = T.Compose([T.ToTensor()])
+model_filepath, _ = modify_yolo_onnx_input_shape("/home/bioinlab/Desktop/carlosIgor/prothestic_ada_hand/ada_visual_ws/src/ada_visual_control/src/models/householdobjects.onnx", image_shape)
+model = compile_model(model_filepath, batch_size=1)
 
 frameMsg = ""
 newMsg = False
 processing = False
 
 classes = [
-    '__background__', 'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus',
-    'train', 'truck', 'boat', 'traffic light', 'fire hydrant', 'N/A', 'stop sign',
-    'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow',
-    'elephant', 'bear', 'zebra', 'giraffe', 'N/A', 'backpack', 'umbrella', 'N/A', 'N/A',
-    'handbag', 'tie', 'suitcase', 'frisbee', 'skis', 'snowboard', 'sports ball',
-    'kite', 'baseball bat', 'baseball glove', 'skateboard', 'surfboard', 'tennis racket',
-    'bottle', 'N/A', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl',
-    'banana', 'apple', 'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza',
-    'donut', 'cake', 'chair', 'couch', 'potted plant', 'bed', 'N/A', 'dining table',
-    'N/A', 'N/A', 'toilet', 'N/A', 'tv', 'laptop', 'mouse', 'remote', 'keyboard', 'cell phone',
-    'microwave', 'oven', 'toaster', 'sink', 'refrigerator', 'N/A', 'book',
-    'clock', 'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush'
+    'bottle'
 ]
 
 dict_objects = {
@@ -52,17 +42,39 @@ dict_objects = {
 curr_obj = CurrentObject(dict_objects, classes, focal_length)
 
 
+def _preprocess_batch(batch: np.ndarray) -> Union[np.ndarray, torch.Tensor]:
+    if len(batch.shape) == 3:
+        batch = batch.reshape(1, *batch.shape)
+    batch = np.ascontiguousarray(batch)
+    return batch
+
+
 # convert from ROS to OpenCV image format
 def convertFrameFormat(frameMsg):
     np_arr = np.frombuffer(frameMsg, np.uint8)
     frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
     # rotate image to desirable angle
     frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
-    # Convert image to PIL format for transformation
-    frame2 = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-    processable_frame = transform(frame2)
+    frame2 = cv2.resize(frame, image_shape)
+    processable_frame = frame2[:, :, ::-1].transpose(2, 0, 1)
 
     return frame, processable_frame
+
+
+# run inference
+def runModel(processable_frame):
+    # pre processing
+    batch = _preprocess_batch(processable_frame)
+    # inference
+    results = model.run([batch])
+    # NMS
+    results = postprocess_nms(results[0])[0]
+    # get atributes
+    boxes = results[:, 0:4]
+    labels = results[:, 5].astype(int)
+    scores = results[:, 4]
+
+    return boxes, labels, scores
 
 
 # publish to ros topics
@@ -89,9 +101,9 @@ def showImage(frame):
     cv2.putText(frame, f'Distance: {round(curr_obj.dist, 3)}', (50, 150), font, font_scale, (255, 0, 0), thickness=2)
     # draw box
     if curr_obj.name != "nothing":
-                startPoint = (int(curr_obj.box[0].item()), int(curr_obj.box[1].item()))
-                finishPoint = (int(curr_obj.box[2].item()), int(curr_obj.box[3].item()))
-                cv2.rectangle(frame, startPoint, finishPoint, (0, 255, 0))
+        startPoint = (int(curr_obj.box[0].item()), int(curr_obj.box[1].item()))
+        finishPoint = (int(curr_obj.box[2].item()), int(curr_obj.box[3].item()))
+        cv2.rectangle(frame, startPoint, finishPoint, (0, 255, 0))
     # show
     cv2.imshow('frame', frame)
     cv2.waitKey(1)
@@ -127,11 +139,10 @@ def loop():
             frame, processable_frame = convertFrameFormat(frameMsg)
             
             # run inference
-            with torch.no_grad():
-                results = model([processable_frame])
+            boxes, labels, scores = runModel(processable_frame)
 
             # choose the object with highest score
-            curr_obj.setObject(results, deltaTime, resetGraspTimer=3)
+            curr_obj.setObject(boxes, labels, scores, deltaTime, resetGraspTimer=3)
 
             # publish to ros topics
             publish()
