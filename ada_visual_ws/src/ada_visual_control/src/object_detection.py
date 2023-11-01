@@ -10,6 +10,8 @@ from torchvision.models.detection import ssdlite320_mobilenet_v3_large
 import torchvision.transforms as T
 from PIL import Image
 import time
+from ada_visual_control.classes.currentObject import CurrentObject
+
 
 
 # camera focal length
@@ -47,71 +49,7 @@ dict_objects = {
     'apple': {'width': 50, 'grasp': 'Power'},
 }
 
-
-class CurrentObject:
-    name = "nothing"
-    grasp = "None"
-    prev_grasp = "None"
-    score = 0
-    box = []
-    dist = 0
-    prev_dist = 0
-    vel = 0
-    detected = False
-    time = 0
-
-    # reset current object atributes
-    def resetObject(self, deltaTime, resetGraspTimer):
-        self.name = "nothing"
-        if self.time < resetGraspTimer: self.time += deltaTime
-        else:
-            self.time = 0
-            self.grasp = "None"
-        self.score = 0
-        self.box = []
-        self.dist= 0
-        self.vel = 0
-
-    # choose the object with highest score
-    def setObject(self, results, deltaTime, resetGraspTimer):
-        self.detected = False
-
-        # get objects atributes
-        boxes = results[0]['boxes']
-        labels = results[0]['labels']
-        scores = results[0]['scores']
-
-        # choose current object
-        self.score = 0
-        for i in range(len(labels)):
-            if classes[labels[i].item()] not in dict_objects:
-                continue
-
-            if scores[i].item() > max(self.score, 0.25):
-                # set current object atributes
-                self.detected = True
-                self.score = scores[i].item()
-                self.name = classes[labels[i].item()]
-                self.box = boxes[i]
-
-        if self.detected:
-            # set current object atributes
-            self.time = 0
-            dict_obj = dict_objects[self.name]
-            self.grasp = dict_obj['grasp']
-            width = int(self.box[2].item()) - int(self.box[0].item())
-            self.dist= (dict_obj['width'] * focal_length)/width
-            self.vel = -(self.dist - self.prev_dist)/deltaTime
-        else:
-            # reset current object atributes
-            self.resetObject(deltaTime, resetGraspTimer)
-
-    # set current object previous atributes
-    def setPrevObject(self):
-        self.prev_grasp = self.grasp
-        self.prev_dist = self.dist
-
-curr_obj = CurrentObject()
+curr_obj = CurrentObject(dict_objects, classes, focal_length)
 
 
 # convert from ROS to OpenCV image format
@@ -135,7 +73,7 @@ def publish():
     grasp_detection_pub.publish(dist_vel_array)
 
     # grasp type topic
-    if curr_obj.grasp != "None" and curr_obj.grasp != curr_obj.prev_grasp:
+    if curr_obj.grasp != curr_obj.prev_grasp:
         grasp_type_pub.publish(curr_obj.grasp)
 
 
