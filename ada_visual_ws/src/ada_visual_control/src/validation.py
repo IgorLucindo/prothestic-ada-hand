@@ -6,7 +6,7 @@ from ada_visual_control.classes.kalmanfilter import KalmanFilter
 
 
 detect_distance = 80
-statesNum = 5
+statesNum = 10
 
 graspMsg = ""
 predDist = 0

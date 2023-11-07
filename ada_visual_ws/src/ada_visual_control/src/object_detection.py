@@ -21,7 +21,7 @@ image_shape = (416, 416)
 focal_length = 510
 
 # load model
-model_filepath, _ = modify_yolo_onnx_input_shape("/home/bioinlab/Desktop/carlosIgor/prothestic_ada_hand/ada_visual_ws/src/ada_visual_control/src/models/householdobjects.onnx", image_shape)
+model_filepath, _ = modify_yolo_onnx_input_shape("/home/bioinlab/Desktop/carlosIgor/prothestic_ada_hand/ada_visual_ws/src/ada_visual_control/src/models/banana.onnx", image_shape)
 model = compile_model(model_filepath, batch_size=1)
 
 frameMsg = ""
@@ -29,7 +29,7 @@ newMsg = False
 processing = False
 
 classes = [
-    'bottle'
+    'banana'
 ]
 
 dict_objects = {
@@ -112,6 +112,7 @@ def showImage(frame):
 # function that is called every time the message arrives
 def cbImageCompressed(message):
     global frameMsg, newMsg, processing
+
     if not processing:
         newMsg = True
 
@@ -155,7 +156,7 @@ def loop():
 
             # set processing to False
             processing = False
-        rate.sleep()
+            rate.sleep()
 
 	
 if __name__ == "__main__":
