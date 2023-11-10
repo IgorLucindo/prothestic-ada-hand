@@ -39,6 +39,7 @@ class CurrentObject:
         # choose current object
         self.score = 0
         for i in range(len(labels)):
+            print(labels[i])
             if labels[i] not in self.dict_objects:
                 continue
 

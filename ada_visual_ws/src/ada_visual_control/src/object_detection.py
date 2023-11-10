@@ -78,8 +78,8 @@ def showImage(frame):
     cv2.putText(frame, f'Distance: {round(curr_obj.dist, 3)}', (50, 150), font, font_scale, (255, 0, 0), thickness=2)
     # draw box
     if curr_obj.name != "nothing":
-        startPoint = (int(curr_obj.box[0].item()), int(curr_obj.box[1].item()))
-        finishPoint = (int(curr_obj.box[2].item()), int(curr_obj.box[3].item()))
+        startPoint = (int(curr_obj.box[0]), int(curr_obj.box[1]))
+        finishPoint = (int(curr_obj.box[2]), int(curr_obj.box[3]))
         cv2.rectangle(frame, startPoint, finishPoint, (0, 255, 0))
     # show
     cv2.imshow('frame', frame)
@@ -116,10 +116,10 @@ def loop():
             frame = convertFrameFormat(frameMsg)
             
             # run inference
-            boxes, labels, scores = runModel(frame)
+            results = runModel(frame)
 
             # choose the object with highest score
-            curr_obj.setObject(boxes, labels, scores, deltaTime, resetGraspTimer=3)
+            curr_obj.setObject(results, deltaTime, resetGraspTimer=3)
 
             # publish to ros topics
             publish()

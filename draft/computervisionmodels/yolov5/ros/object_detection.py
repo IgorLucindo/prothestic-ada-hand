@@ -16,7 +16,7 @@ focal_length = 510
 # load model
 model = Pipeline.create(
     task="yolo",
-    model_path="models/yolov5-s-coco-pruned75_quantized.onnx",
+    model_path="/home/bioinlab/Desktop/carlosIgor/prothestic_ada_hand/ada_visual_ws/src/ada_visual_control/src/models/yolov5-s-coco-pruned75_quantized.onnx",
     class_names="coco",
     num_cores=4,
     image_size=(640, 480)
@@ -78,8 +78,8 @@ def showImage(frame):
     cv2.putText(frame, f'Distance: {round(curr_obj.dist, 3)}', (50, 150), font, font_scale, (255, 0, 0), thickness=2)
     # draw box
     if curr_obj.name != "nothing":
-        startPoint = (int(curr_obj.box[0].item()), int(curr_obj.box[1].item()))
-        finishPoint = (int(curr_obj.box[2].item()), int(curr_obj.box[3].item()))
+        startPoint = (int(curr_obj.box[0]), int(curr_obj.box[1]))
+        finishPoint = (int(curr_obj.box[2]), int(curr_obj.box[3]))
         cv2.rectangle(frame, startPoint, finishPoint, (0, 255, 0))
     # show
     cv2.imshow('frame', frame)
