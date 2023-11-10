@@ -1,7 +1,0 @@
-set(ada_visual_control_SETUP_PY_SETUP_MODULE "distutils.core")
-set(ada_visual_control_SETUP_PY_VERSION "0.0.0")
-set(ada_visual_control_SETUP_PY_SCRIPTS "")
-set(ada_visual_control_SETUP_PY_PACKAGES "ada_visual_control")
-set(ada_visual_control_SETUP_PY_PACKAGE_DIRS "src/ada_visual_control")
-set(ada_visual_control_SETUP_PY_MODULES "")
-set(ada_visual_control_SETUP_PY_MODULE_DIRS "")

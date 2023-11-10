@@ -1,2 +1,2 @@
 ada_visual_control
--DCATKIN_DEVEL_PREFIX=/home/bioinlab/Desktop/carlosIgor/prothestic_ada_hand/ada_visual_ws/devel -DCMAKE_INSTALL_PREFIX=/home/bioinlab/Desktop/carlosIgor/prothestic_ada_hand/ada_visual_ws/install -G Unix Makefiles
+-DCATKIN_DEVEL_PREFIX=/home/igor/Desktop/prothestic_ada_hand/ada_visual_ws/devel -DCMAKE_INSTALL_PREFIX=/home/igor/Desktop/prothestic_ada_hand/ada_visual_ws/install -G Unix Makefiles

@@ -1,4 +1,4 @@
-#!/home/bioinlab/anaconda3/bin/python3
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 # Software License Agreement (BSD License)
@@ -217,6 +217,7 @@ def find_env_hooks(environ, cmake_prefix_path):
     specific_env_hook_ext = environ['CATKIN_SHELL'] if not IS_WINDOWS and 'CATKIN_SHELL' in environ and environ['CATKIN_SHELL'] else None
     # remove non-workspace paths
     workspaces = [path for path in cmake_prefix_path.split(os.pathsep) if path and os.path.isfile(os.path.join(path, CATKIN_MARKER_FILE))]
+    workspaces.append('/')
     for workspace in reversed(workspaces):
         env_hook_dir = os.path.join(workspace, 'etc', 'catkin', 'profile.d')
         if os.path.isdir(env_hook_dir):
@@ -247,7 +248,7 @@ def find_env_hooks(environ, cmake_prefix_path):
     lines.append(assignment('_CATKIN_ENVIRONMENT_HOOKS_COUNT', count))
     for i in range(count):
         lines.append(assignment('_CATKIN_ENVIRONMENT_HOOKS_%d' % i, env_hooks[i]))
-        lines.append(assignment('_CATKIN_ENVIRONMENT_HOOKS_%d_WORKSPACE' % i, env_hooks_workspace[i]))
+        lines.append(assignment('_CATKIN_ENVIRONMENT_HOOKS_%d_WORKSPACE' % i, (env_hooks_workspace[i] if env_hooks_workspace[i] != '/' else '')))
     return lines
 
 
@@ -268,7 +269,7 @@ if __name__ == '__main__':
 
         if not args.local:
             # environment at generation time
-            CMAKE_PREFIX_PATH = r'/home/bioinlab/Desktop/carlosIgor/prothestic_ada_hand/ada_visual_ws/devel;/opt/ros/noetic'.split(';')
+            CMAKE_PREFIX_PATH = r''.split(';')
         else:
             # don't consider any other prefix path than this one
             CMAKE_PREFIX_PATH = []

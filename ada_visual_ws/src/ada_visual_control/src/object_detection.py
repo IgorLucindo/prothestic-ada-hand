@@ -1,36 +1,30 @@
 # all distances in mm
 import numpy as np
 import rospy
+import cv2
+import time
+from deepsparse import Pipeline
 from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import String
 from std_msgs.msg import Float32MultiArray
-import cv2
-import torch
-from deepsparse import compile_model
-from ada_visual_control.utils.deepsparse_utils import (
-    modify_yolo_onnx_input_shape,
-    postprocess_nms
-)
-from typing import Union
-import time
 from ada_visual_control.classes.currentObject import CurrentObject
 
 
-image_shape = (416, 416)
 # camera focal length
 focal_length = 510
 
 # load model
-model_filepath, _ = modify_yolo_onnx_input_shape("/home/bioinlab/Desktop/carlosIgor/prothestic_ada_hand/ada_visual_ws/src/ada_visual_control/src/models/banana.onnx", image_shape)
-model = compile_model(model_filepath, batch_size=1)
+model = Pipeline.create(
+    task="yolo",
+    model_path="models/yolov5-s-coco-pruned75_quantized.onnx",
+    class_names="coco",
+    num_cores=4,
+    image_size=(640, 480)
+)
 
 frameMsg = ""
 newMsg = False
 processing = False
-
-classes = [
-    'banana'
-]
 
 dict_objects = {
     'bottle': {'width': 60, 'grasp': 'Power'},
@@ -39,14 +33,7 @@ dict_objects = {
     'apple': {'width': 50, 'grasp': 'Power'},
 }
 
-curr_obj = CurrentObject(dict_objects, classes, focal_length)
-
-
-def _preprocess_batch(batch: np.ndarray) -> Union[np.ndarray, torch.Tensor]:
-    if len(batch.shape) == 3:
-        batch = batch.reshape(1, *batch.shape)
-    batch = np.ascontiguousarray(batch)
-    return batch
+curr_obj = CurrentObject(dict_objects, focal_length)
 
 
 # convert from ROS to OpenCV image format
@@ -55,26 +42,16 @@ def convertFrameFormat(frameMsg):
     frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
     # rotate image to desirable angle
     frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
-    frame2 = cv2.resize(frame, image_shape)
-    processable_frame = frame2[:, :, ::-1].transpose(2, 0, 1)
 
-    return frame, processable_frame
+    return frame
 
 
 # run inference
-def runModel(processable_frame):
-    # pre processing
-    batch = _preprocess_batch(processable_frame)
+def runModel(frame):
     # inference
-    results = model.run([batch])
-    # NMS
-    results = postprocess_nms(results[0])[0]
-    # get atributes
-    boxes = results[:, 0:4]
-    labels = results[:, 5].astype(int)
-    scores = results[:, 4]
+    results = model(images=frame)
 
-    return boxes, labels, scores
+    return results
 
 
 # publish to ros topics
@@ -112,7 +89,6 @@ def showImage(frame):
 # function that is called every time the message arrives
 def cbImageCompressed(message):
     global frameMsg, newMsg, processing
-
     if not processing:
         newMsg = True
 
@@ -137,10 +113,10 @@ def loop():
             newMsg = False
 
             # convert from ROS to OpenCV image format
-            frame, processable_frame = convertFrameFormat(frameMsg)
+            frame = convertFrameFormat(frameMsg)
             
             # run inference
-            boxes, labels, scores = runModel(processable_frame)
+            boxes, labels, scores = runModel(frame)
 
             # choose the object with highest score
             curr_obj.setObject(boxes, labels, scores, deltaTime, resetGraspTimer=3)
