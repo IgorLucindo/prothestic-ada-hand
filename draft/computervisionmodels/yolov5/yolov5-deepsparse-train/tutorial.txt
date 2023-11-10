@@ -1,0 +1,30 @@
+# run these commands in the terminal to train your yolov5 model
+cd yolov5-train
+
+# train
+python train.py --cfg ./models_v5.0/yolov5s.yaml 
+                --recipe ../recipes/yolov5s.pruned_quantized.md 
+                --data householdObjetcs.yaml 
+                --hyp data/hyps/hyp.scratch.yaml 
+                --weights yolov5s.pt 
+                --img 416 
+                --batch-size 4 
+                --optimizer SGD 
+                --project yolov5-deepsparse 
+                --name householdObjects-yolov5s-pruned-quantized
+
+# export
+python export.py --weights yolov5-deepsparse/householdObjects-yolov5s-pruned-quantized/weights/best.pt 
+                 --include onnx 
+                 --imgsz 416 
+                 --dynamic 
+                 --simplify
+
+# run inference
+python annotate.py yolov5-deepsparse/householdObjects-yolov5s-pruned-quantized/weights/best.onnx
+                   --source data/pexels-cottonbro-8717592.mp4
+                   --engine deepsparse
+                   --device cpu
+                   --conf-thres 0.7
+                   --image-shape 416 416
+                   --quantized-input
