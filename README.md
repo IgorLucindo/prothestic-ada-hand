@@ -2,7 +2,12 @@
 prothestic hand that grasps objecs automatically
 
 # Setup
-Run the following commands to start and setup the ros workspace:
+First, run the command bellow to install all the libraries needed to run the application:
+```
+$ pip install -r requirements.txt
+```
+
+After that, run the following commands to start and setup the ros workspace:
 ```
 $ cd ada_visual_ws
 $ catkin_make
