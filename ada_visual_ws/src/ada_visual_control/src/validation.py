@@ -71,7 +71,7 @@ def cbGraspType(message):
 
 def cb():
     # conditions to grasp
-    if predDist <= detect_distance and predDist:
+    if (predDist <= detect_distance) and (predDist != 0):
         # publish to grasp topic
         grasp_pub.publish(graspMsg)
 

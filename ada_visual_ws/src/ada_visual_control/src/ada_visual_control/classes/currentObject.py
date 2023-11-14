@@ -1,6 +1,7 @@
 class CurrentObject:
-    def __init__(self, dict_objects, focal_length):
+    def __init__(self, dict_objects, classes, focal_length):
         self.dict_objects = dict_objects
+        self.classes = classes
         self.focal_length = focal_length
 
         self.name = "nothing"
@@ -32,21 +33,21 @@ class CurrentObject:
         self.detected = False
 
         # get atributes
-        boxes = results.boxes[0]
-        labels = results.labels[0]
-        scores = results.scores[0]
+        boxes = results[0]['boxes']
+        labels = results[0]['labels']
+        scores = results[0]['scores']
 
         # choose current object
         self.score = 0
         for i in range(len(labels)):
-            if labels[i] not in self.dict_objects:
+            if self.classes[labels[i].item()] not in self.dict_objects:
                 continue
 
-            if scores[i] > max(self.score, 0.25):
+            if scores[i].item() > max(self.score, 0.25):
                 # set current object atributes
                 self.detected = True
-                self.score = scores[i]
-                self.name = labels[i]
+                self.score = scores[i].item()
+                self.name = self.classes[labels[i].item()]
                 self.box = boxes[i]
 
         if self.detected:
@@ -54,7 +55,7 @@ class CurrentObject:
             self.time = 0
             dict_obj = self.dict_objects[self.name]
             self.grasp = dict_obj['grasp']
-            width = int(self.box[2]) - int(self.box[0])
+            width = int(self.box[2].item()) - int(self.box[0].item())
             self.dist= (dict_obj['width'] * self.focal_length)/width
             self.vel = -(self.dist - self.prev_dist)/deltaTime
         else:

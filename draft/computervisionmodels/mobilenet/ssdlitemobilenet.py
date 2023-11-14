@@ -37,39 +37,36 @@ cap = cv2.VideoCapture(0)
 
 while True:
     _, frame = cap.read()
-
     frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
-
     frame2 = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+    processable_frame = transform(frame2)
 
-    img = transform(frame2)
-
+    # run inference
     with torch.no_grad():
-        prediction = model([img])
+        prediction = model([processable_frame])
 
-    # The 'boxes' key contains the bounding boxes of the detected objects
+    # set atribute
     boxes = prediction[0]['boxes']
-
-    # The 'labels' key contains the class labels of the detected objects
     labels = prediction[0]['labels']
-
-    # The 'scores' key contains the confidence scores of the detected objects
     scores = prediction[0]['scores']
 
-    maxScore = 0
+    score = 0
     name = "nothing"
     box = boxes[0]
     for i in range(len(labels)):
-        if scores[i].item() > maxScore:
-            maxScore = scores[i].item()
+        if classes[labels[i].item()] not in classes:
+                continue
+
+        if scores[i].item() > max(score, 0.25):
+            score = scores[i].item()
             name = classes[labels[i].item()]
             box = boxes[i]
             width = int(box[2].item()) - int(box[0].item())
         
     # calculate distance
+    distance_mm = 0
     if name in objects:
         distance_mm = (objects[name]['width_mm'] * focal_length_mm) / width
-        print(distance_mm)
 
         startPoint = (int(box[0].item()), int(box[1].item()))
         finishPoint = (int(box[2].item()), int(box[3].item()))
@@ -77,7 +74,7 @@ while True:
     else:
         name = "nothing"
 
-    print("name: ", name, "     score: ", maxScore)
+    print("name: ", name, "    score: ", score, '    distance: ', distance_mm, ' '*20, end='\r')
 
     cv2.imshow('img', frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):

@@ -14,7 +14,7 @@ while True:
     currentTime = time.time()
     deltaTime = currentTime - previousTime
     previousTime = currentTime
-    # print(1/deltaTime)
+    # print('FPS: ',round(1/deltaTime, 2), end='\r')
 
 
     _, frame = cap.read()

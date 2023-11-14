@@ -3,7 +3,10 @@ import numpy as np
 import rospy
 import cv2
 import time
-from deepsparse import Pipeline
+import torch
+import torchvision.transforms as T
+from torchvision.models.detection import ssdlite320_mobilenet_v3_large
+from PIL import Image
 from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import String
 from std_msgs.msg import Float32MultiArray
@@ -14,17 +17,29 @@ from ada_visual_control.classes.currentObject import CurrentObject
 focal_length = 510
 
 # load model
-model = Pipeline.create(
-    task="yolo",
-    model_path="/home/bioinlab/Desktop/carlosIgor/prothestic_ada_hand/ada_visual_ws/src/ada_visual_control/src/models/yolov5-s-coco-pruned75_quantized.onnx",
-    class_names="coco",
-    num_cores=4,
-    image_size=(640, 480)
-)
+model = ssdlite320_mobilenet_v3_large(pretrained=True)
+model.eval()
+
+transform = T.Compose([T.ToTensor()])
 
 frameMsg = ""
 newMsg = False
 processing = False
+
+classes = [
+    '__background__', 'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus',
+    'train', 'truck', 'boat', 'traffic light', 'fire hydrant', 'N/A', 'stop sign',
+    'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow',
+    'elephant', 'bear', 'zebra', 'giraffe', 'N/A', 'backpack', 'umbrella', 'N/A', 'N/A',
+    'handbag', 'tie', 'suitcase', 'frisbee', 'skis', 'snowboard', 'sports ball',
+    'kite', 'baseball bat', 'baseball glove', 'skateboard', 'surfboard', 'tennis racket',
+    'bottle', 'N/A', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl',
+    'banana', 'apple', 'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza',
+    'donut', 'cake', 'chair', 'couch', 'potted plant', 'bed', 'N/A', 'dining table',
+    'N/A', 'N/A', 'toilet', 'N/A', 'tv', 'laptop', 'mouse', 'remote', 'keyboard', 'cell phone',
+    'microwave', 'oven', 'toaster', 'sink', 'refrigerator', 'N/A', 'book',
+    'clock', 'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush'
+]
 
 dict_objects = {
     'bottle': {'width': 60, 'grasp': 'Power'},
@@ -33,7 +48,7 @@ dict_objects = {
     'apple': {'width': 50, 'grasp': 'Power'},
 }
 
-curr_obj = CurrentObject(dict_objects, focal_length)
+curr_obj = CurrentObject(dict_objects, classes, focal_length)
 
 
 # convert from ROS to OpenCV image format
@@ -42,15 +57,18 @@ def convertFrameFormat(frameMsg):
     frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
     # rotate image to desirable angle
     frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    frame2 = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+    processable_frame = transform(frame2)
 
-    return frame
+    return frame, processable_frame
 
 
 # run inference
-def runModel(frame):
+def runModel(processable_frame):
     # inference
-    results = model(images=frame)
-
+    with torch.no_grad():
+        results = model([processable_frame])
+    
     return results
 
 
@@ -78,8 +96,8 @@ def showImage(frame):
     cv2.putText(frame, f'Distance: {round(curr_obj.dist, 3)}', (50, 150), font, font_scale, (255, 0, 0), thickness=2)
     # draw box
     if curr_obj.name != "nothing":
-        startPoint = (int(curr_obj.box[0]), int(curr_obj.box[1]))
-        finishPoint = (int(curr_obj.box[2]), int(curr_obj.box[3]))
+        startPoint = (int(curr_obj.box[0].item()), int(curr_obj.box[1].item()))
+        finishPoint = (int(curr_obj.box[2].item()), int(curr_obj.box[3].item()))
         cv2.rectangle(frame, startPoint, finishPoint, (0, 255, 0))
     # show
     cv2.imshow('frame', frame)
@@ -113,10 +131,10 @@ def loop():
             newMsg = False
 
             # convert from ROS to OpenCV image format
-            frame = convertFrameFormat(frameMsg)
+            frame, processable_frame = convertFrameFormat(frameMsg)
             
             # run inference
-            results = runModel(frame)
+            results = runModel(processable_frame)
 
             # choose the object with highest score
             curr_obj.setObject(results, deltaTime, resetGraspTimer=3)
