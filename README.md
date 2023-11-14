@@ -1,7 +1,7 @@
 # Prothestic ada hand
 prothestic hand that grasps objecs automatically
 
-# setup
+# Setup
 Run the following commands to start and setup the ros workspace:
 ```
 $ cd ada_visual_ws
