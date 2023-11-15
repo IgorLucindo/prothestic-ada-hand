@@ -4,26 +4,26 @@ from std_msgs.msg import String
 from std_msgs.msg import Float32MultiArray
 from ada_visual_control.classes.kalmanfilter import KalmanFilter
 
+# debug mode
+DEBUG_MODE = True
 
 detect_distance = 80
 statesNum = 10
 
 graspMsg = ""
 predDist = 0
-predVel = 0
 predDistArray = []
 prevDist = 0
 count = 0
+predictions = []
 
 # Kalman Filter
 kalmanFilter = KalmanFilter()
 
-predictions = []
-
 
 # function that is called every time the message arrives
 def cbGraspDetection(message):
-    global predDist, predVel, predDistArray, prevDist, count
+    global predDist, predDistArray, prevDist, count
     predDist = 0
 
     # if there is an object
@@ -41,9 +41,10 @@ def cbGraspDetection(message):
             predDistArray = kalmanFilter.getNextStates(statesNum)
 
             # set 'predDistArray' in predictions array for debug purposes
-            predictions.insert(0, predDistArray)
-            if len(predictions) > statesNum:
-                predictions.pop()
+            if DEBUG_MODE:
+                predictions.insert(0, predDistArray)
+                if len(predictions) > statesNum:
+                    predictions.pop()
         
         # set 'predDist' according to predicted distance
         if count < statesNum and len(predDistArray):
@@ -53,10 +54,11 @@ def cbGraspDetection(message):
     # set previous message
     prevDist = message.data[0]
     
-    # publish distance and predicted distance for debug
-    predict = Float32MultiArray()
-    predict.data = [message.data[0], predDist]
-    predict_pub.publish(predict)
+    # publish actual distance and predicted distance for debug
+    if DEBUG_MODE:
+        predict = Float32MultiArray()
+        predict.data = [message.data[0], predDist]
+        predict_pub.publish(predict)
 
     cb()
 

@@ -1,45 +1,23 @@
 # all distances in mm
-import numpy as np
 import rospy
 import cv2
 import time
-import torch
-import torchvision.transforms as T
-from torchvision.models.detection import ssdlite320_mobilenet_v3_large
-from PIL import Image
 from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import String
 from std_msgs.msg import Float32MultiArray
 from ada_visual_control.classes.currentObject import CurrentObject
+from ada_visual_control.utils.ssdlitemobilenet_utils import convertFrameFormat, runModel
 
+
+# debug mode
+DEBUG_MODE = True
 
 # camera focal length
 focal_length = 510
 
-# load model
-model = ssdlite320_mobilenet_v3_large(pretrained=True)
-model.eval()
-
-transform = T.Compose([T.ToTensor()])
-
 frameMsg = ""
 newMsg = False
 processing = False
-
-classes = [
-    '__background__', 'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus',
-    'train', 'truck', 'boat', 'traffic light', 'fire hydrant', 'N/A', 'stop sign',
-    'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow',
-    'elephant', 'bear', 'zebra', 'giraffe', 'N/A', 'backpack', 'umbrella', 'N/A', 'N/A',
-    'handbag', 'tie', 'suitcase', 'frisbee', 'skis', 'snowboard', 'sports ball',
-    'kite', 'baseball bat', 'baseball glove', 'skateboard', 'surfboard', 'tennis racket',
-    'bottle', 'N/A', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl',
-    'banana', 'apple', 'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza',
-    'donut', 'cake', 'chair', 'couch', 'potted plant', 'bed', 'N/A', 'dining table',
-    'N/A', 'N/A', 'toilet', 'N/A', 'tv', 'laptop', 'mouse', 'remote', 'keyboard', 'cell phone',
-    'microwave', 'oven', 'toaster', 'sink', 'refrigerator', 'N/A', 'book',
-    'clock', 'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush'
-]
 
 dict_objects = {
     'bottle': {'width': 60, 'grasp': 'Power'},
@@ -48,28 +26,7 @@ dict_objects = {
     'apple': {'width': 50, 'grasp': 'Power'},
 }
 
-curr_obj = CurrentObject(dict_objects, classes, focal_length)
-
-
-# convert from ROS to OpenCV image format
-def convertFrameFormat(frameMsg):
-    np_arr = np.frombuffer(frameMsg, np.uint8)
-    frame = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
-    # rotate image to desirable angle
-    frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
-    frame2 = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-    processable_frame = transform(frame2)
-
-    return frame, processable_frame
-
-
-# run inference
-def runModel(processable_frame):
-    # inference
-    with torch.no_grad():
-        results = model([processable_frame])
-    
-    return results
+curr_obj = CurrentObject(dict_objects, focal_length)
 
 
 # publish to ros topics
@@ -96,8 +53,8 @@ def showImage(frame):
     cv2.putText(frame, f'Distance: {round(curr_obj.dist, 3)}', (50, 150), font, font_scale, (255, 0, 0), thickness=2)
     # draw box
     if curr_obj.name != "nothing":
-        startPoint = (int(curr_obj.box[0].item()), int(curr_obj.box[1].item()))
-        finishPoint = (int(curr_obj.box[2].item()), int(curr_obj.box[3].item()))
+        startPoint = (int(curr_obj.box[0]), int(curr_obj.box[1]))
+        finishPoint = (int(curr_obj.box[2]), int(curr_obj.box[3]))
         cv2.rectangle(frame, startPoint, finishPoint, (0, 255, 0))
     # show
     cv2.imshow('frame', frame)
@@ -134,16 +91,17 @@ def loop():
             frame, processable_frame = convertFrameFormat(frameMsg)
             
             # run inference
-            results = runModel(processable_frame)
+            boxes, classes, scores = runModel(processable_frame)
 
             # choose the object with highest score
-            curr_obj.setObject(results, deltaTime, resetGraspTimer=3)
+            curr_obj.setObject(boxes, classes, scores, deltaTime, resetGraspTimer=3)
 
             # publish to ros topics
             publish()
 
             # show image with displayed information
-            showImage(frame)
+            if DEBUG_MODE:
+                showImage(frame)
 
             # set current object previous atributes
             curr_obj.setPrevObject()

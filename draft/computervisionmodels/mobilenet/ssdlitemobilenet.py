@@ -1,11 +1,18 @@
+import cv2
+import time
 import torch
 import torchvision.transforms as T
 from torchvision.models.detection import ssdlite320_mobilenet_v3_large
-import cv2
 from PIL import Image
 
 
-classes = [
+# load model
+model = ssdlite320_mobilenet_v3_large(pretrained=True)
+model.eval()
+
+transform = T.Compose([T.ToTensor()])
+
+COCO_CLASSES = [
     '__background__', 'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus',
     'train', 'truck', 'boat', 'traffic light', 'fire hydrant', 'N/A', 'stop sign',
     'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow',
@@ -21,63 +28,75 @@ classes = [
 ]
 
 objects = {
-    'bottle': {'width_mm': 60}
+    'bottle': {'width': 60}
 }
 
-focal_length_mm = 510 # Focal length of the camera in millimeters
 
-
-model = ssdlite320_mobilenet_v3_large(pretrained=True)
-model.eval()
-
-transform = T.Compose([T.ToTensor()])
-
-cap = cv2.VideoCapture(0)
-
-
-while True:
-    _, frame = cap.read()
-    frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+# get processable frame for inference
+def getProcessableFrame(frame):
     frame2 = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-    processable_frame = transform(frame2)
+    return transform(frame2)
 
-    # run inference
+
+# run inference
+def runModel(processable_frame):
+    # inference
     with torch.no_grad():
-        prediction = model([processable_frame])
+        results = model([processable_frame])
 
-    # set atribute
-    boxes = prediction[0]['boxes']
-    labels = prediction[0]['labels']
-    scores = prediction[0]['scores']
-
-    score = 0
-    name = "nothing"
-    box = boxes[0]
+    # get atribute
+    boxes = results[0]['boxes'].numpy()
+    labels = results[0]['labels'].numpy()
+    classes = []
     for i in range(len(labels)):
-        if classes[labels[i].item()] not in classes:
-                continue
+        classes.append(COCO_CLASSES[labels[i]])
+    scores = results[0]['scores'].numpy()
+    
+    return boxes, classes, scores
 
-        if scores[i].item() > max(score, 0.25):
-            score = scores[i].item()
-            name = classes[labels[i].item()]
-            box = boxes[i]
-            width = int(box[2].item()) - int(box[0].item())
-        
-    # calculate distance
-    distance_mm = 0
-    if name in objects:
-        distance_mm = (objects[name]['width_mm'] * focal_length_mm) / width
 
-        startPoint = (int(box[0].item()), int(box[1].item()))
-        finishPoint = (int(box[2].item()), int(box[3].item()))
-        cv2.rectangle(frame, startPoint, finishPoint, (0, 255, 0))
-    else:
+if __name__ == "__main__":
+    cap = cv2.VideoCapture(0)
+    previousTime = 0
+
+    # loop
+    while True:
+        # get deltaTime
+        currentTime = time.time()
+        deltaTime = currentTime - previousTime
+        previousTime = currentTime
+
+        _, frame = cap.read()
+        frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        processable_frame = getProcessableFrame(frame)
+
+        # run inference
+        boxes, classes, scores = runModel(processable_frame)
+
+        # set atributes
+        detected = False
+        box = []
         name = "nothing"
+        score = 0
+        for i in range(len(classes)):
+            if classes[i] not in objects:
+                    continue
 
-    print("name: ", name, "    score: ", score, '    distance: ', distance_mm, ' '*20, end='\r')
+            if scores[i] > max(score, 0.25):
+                detected = True
+                score = scores[i]
+                name = classes[i]
+                box = boxes[i]
 
-    cv2.imshow('img', frame)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        cap.release()
-        cv2.destroyAllWindows()
-        break
+        if detected:
+            startPoint = (int(box[0]), int(box[1]))
+            finishPoint = (int(box[2]), int(box[3]))
+            cv2.rectangle(frame, startPoint, finishPoint, (0, 255, 0))
+
+        # debug
+        print("name: ", name, "    score: ", score, '    FPS: ', round(1/deltaTime, 2), ' '*20, end='\r')
+        cv2.imshow('frame', frame)
+
+        if cv2.waitKey(1) == 27:
+            cv2.destroyAllWindows()
+            break

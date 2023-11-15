@@ -2,37 +2,13 @@
 import cv2
 import os
 import time
-import torch
-import torchvision.transforms as T
-from torchvision.models.detection import ssdlite320_mobilenet_v3_large
-from PIL import Image
-from ros.classes.currentObject import CurrentObject
-from ros.classes.kalmanfilter import KalmanFilter
+from yolov5.yolov5deepsparse import getProcessableFrame, runModel
+from currentObject import CurrentObject
+from kalmanfilter import KalmanFilter
 
 
 # camera focal length
 focal_length = 510
-
-# load model
-model = ssdlite320_mobilenet_v3_large(pretrained=True)
-model.eval()
-
-transform = T.Compose([T.ToTensor()])
-
-classes = [
-    '__background__', 'person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus',
-    'train', 'truck', 'boat', 'traffic light', 'fire hydrant', 'N/A', 'stop sign',
-    'parking meter', 'bench', 'bird', 'cat', 'dog', 'horse', 'sheep', 'cow',
-    'elephant', 'bear', 'zebra', 'giraffe', 'N/A', 'backpack', 'umbrella', 'N/A', 'N/A',
-    'handbag', 'tie', 'suitcase', 'frisbee', 'skis', 'snowboard', 'sports ball',
-    'kite', 'baseball bat', 'baseball glove', 'skateboard', 'surfboard', 'tennis racket',
-    'bottle', 'N/A', 'wine glass', 'cup', 'fork', 'knife', 'spoon', 'bowl',
-    'banana', 'apple', 'sandwich', 'orange', 'broccoli', 'carrot', 'hot dog', 'pizza',
-    'donut', 'cake', 'chair', 'couch', 'potted plant', 'bed', 'N/A', 'dining table',
-    'N/A', 'N/A', 'toilet', 'N/A', 'tv', 'laptop', 'mouse', 'remote', 'keyboard', 'cell phone',
-    'microwave', 'oven', 'toaster', 'sink', 'refrigerator', 'N/A', 'book',
-    'clock', 'vase', 'scissors', 'teddy bear', 'hair drier', 'toothbrush'
-]
 
 dict_objects = {
     'bottle': {'width': 60, 'grasp': 'Power'},
@@ -41,7 +17,7 @@ dict_objects = {
     'apple': {'width': 50, 'grasp': 'Power'},
 }
 
-curr_obj = CurrentObject(dict_objects, classes, focal_length)
+curr_obj = CurrentObject(dict_objects, focal_length)
 
 detect_distance = 100
 statesNum = 5
@@ -53,19 +29,10 @@ count = 0
 # Kalman Filter
 kalmanFilter = KalmanFilter()
 
-ada_hand_videos_path = "../../ada_hand_videos"
+ada_hand_videos_path = "../ada_hand_videos"
 
 # List all files in the folder
 video_folders = os.listdir(ada_hand_videos_path)
-
-
-# run inference
-def runModel(processable_frame):
-    # inference
-    with torch.no_grad():
-        results = model([processable_frame])
-    
-    return results
 
 
 # return true if grasp
@@ -117,19 +84,19 @@ def loop(cap):
         if not ret:
             break
         frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
-        frame2 = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
-        processable_frame = transform(frame2)
-        cv2.imshow('frame', frame)
+        processable_frame = getProcessableFrame(frame)
 
         # run inference
-        results = runModel(processable_frame)
+        boxes, classes, scores = runModel(processable_frame)
 
         # choose the object with highest score
-        curr_obj.setObject(results, deltaTime, resetGraspTimer=3)
+        curr_obj.setObject(boxes, classes, scores, deltaTime, resetGraspTimer=3)
 
         # detects grasp
         if graspDetection():
             return 1
+        
+        cv2.imshow('frame', frame)
 
         cv2.waitKey(1)
 
