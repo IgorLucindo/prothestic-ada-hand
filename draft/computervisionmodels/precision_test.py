@@ -2,7 +2,7 @@
 import cv2
 import os
 import time
-from yolov5.yolov5deepsparse import getProcessableFrame, runModel
+from mobilenet.ssdlitemobilenet import getProcessableFrame, runModel
 from currentObject import CurrentObject
 from kalmanfilter import KalmanFilter
 
@@ -19,7 +19,7 @@ dict_objects = {
 
 curr_obj = CurrentObject(dict_objects, focal_length)
 
-detect_distance = 100
+detect_distance = 80
 statesNum = 5
 
 prevDist = 0
@@ -95,8 +95,6 @@ def loop(cap):
         # detects grasp
         if graspDetection():
             return 1
-        
-        cv2.imshow('frame', frame)
 
         cv2.waitKey(1)
 
@@ -121,10 +119,9 @@ if __name__ == "__main__":
 
             # set precision for each object
             grasped = loop(cap)
-            print(video_path)
             objectPrecision = (objectPrecision*i + grasped)/(i+1)
             i += 1
-            # if i == len(videos):
-            #     print(video_folder, ': ', round(objectPrecision*100, 2))
-            # else:
-            #     print(video_folder, ': ', round(objectPrecision*100, 2), ' '*2, end='\r')
+            if i == len(videos):
+                print(video_folder, ': ', round(objectPrecision*100, 2))
+            else:
+                print(video_folder, ': ', round(objectPrecision*100, 2), ' '*2, end='\r')

@@ -3,7 +3,7 @@ import cv2
 import time
 
 
-model = torch.hub.load('ultralytics/yolov5', 'custom', path='best.pt')
+model = torch.hub.load('ultralytics/yolov5', 'custom', path='models/yolov5n.pt')
 
 cap = cv2.VideoCapture(0)
 
