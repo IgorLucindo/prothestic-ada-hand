@@ -2,7 +2,7 @@
 import cv2
 import os
 import time
-from mobilenet.ssdlitemobilenet import getProcessableFrame, runModel
+from yolov5.yolov5deepsparse import getProcessableFrame, runModel
 from currentObject import CurrentObject
 from kalmanfilter import KalmanFilter
 
@@ -20,7 +20,7 @@ dict_objects = {
 curr_obj = CurrentObject(dict_objects, focal_length)
 
 detect_distance = 80
-statesNum = 5
+statesNum = 10
 
 prevDist = 0
 predDistArray = []

@@ -16,7 +16,10 @@ model = Pipeline.create(
 )
 
 objects = {
-    'bottle': {'width': 60}
+    'bottle': {'width': 0},
+    'banana': {'width': 0},
+    'apple': {'width': 0},
+    'cell phone': {'width': 0},
 }
 
 
@@ -28,7 +31,7 @@ def getProcessableFrame(frame):
 # run inference
 def runModel(processable_frame):
     # inference
-    results = model(images=processable_frame)
+    results = model(images=processable_frame, iou_thres=0.2, conf_thres=0.1)
 
     # get atribute
     boxes = results.boxes[0]
