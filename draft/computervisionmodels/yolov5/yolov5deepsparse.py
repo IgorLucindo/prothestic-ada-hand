@@ -19,7 +19,6 @@ objects = {
     'bottle': {'width': 0},
     'banana': {'width': 0},
     'apple': {'width': 0},
-    'cell phone': {'width': 0},
 }
 
 

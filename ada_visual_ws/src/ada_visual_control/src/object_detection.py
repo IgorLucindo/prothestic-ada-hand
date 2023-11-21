@@ -6,7 +6,7 @@ from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import String
 from std_msgs.msg import Float32MultiArray
 from ada_visual_control.classes.currentObject import CurrentObject
-from ada_visual_control.utils.ssdlitemobilenet_utils import convertFrameFormat, runModel
+from ada_visual_control.utils.yolov5deepsparse_utils import convertFrameFormat, runModel
 
 
 # debug mode
@@ -20,10 +20,9 @@ newMsg = False
 processing = False
 
 dict_objects = {
-    'bottle': {'width': 60, 'orientation': 'vertical', 'grasp': 'Power'},
-    'cell phone': {'width': 70, 'orientation': 'None', 'grasp': 'Power'},
-    'banana': {'width': 30, 'orientation': 'vertical', 'grasp': 'Pinch'},
-    'apple': {'width': 50, 'orientation': 'None', 'grasp': 'Power'},
+    'bottle': {'width': 60, 'grasp': 'Power'},
+    'banana': {'width': 40, 'grasp': 'Pinch'},
+    'apple': {'width': 50, 'grasp': 'Power'},
 }
 
 curr_obj = CurrentObject(dict_objects, focal_length)

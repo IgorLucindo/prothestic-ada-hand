@@ -10,7 +10,6 @@ class CurrentObject:
         self.box = []
         self.width = 0
         self.height = 0
-        self.orientation = "None"
         self.dist = 0
         self.prev_dist = 0
         self.vel = 0
@@ -54,11 +53,7 @@ class CurrentObject:
             self.grasp = dict_obj['grasp']
             self.width = int(self.box[2]) - int(self.box[0])
             self.height = int(self.box[3]) - int(self.box[1])
-            if self.width > self.height:
-                self.orientation = "horizontal"
-            else:
-                self.orientation = "vertical"
-            self.dist= dict_obj['width'] * self.focal_length / self.width
+            self.dist= dict_obj['width'] * self.focal_length / min(self.width, self.height)
             self.vel = -(self.dist - self.prev_dist)/deltaTime
         else:
             # reset current object atributes

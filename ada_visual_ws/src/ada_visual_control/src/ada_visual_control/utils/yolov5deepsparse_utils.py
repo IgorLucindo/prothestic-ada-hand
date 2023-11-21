@@ -1,17 +1,14 @@
 import numpy as np
-import os
 import cv2
 from deepsparse import Pipeline
 
 
-file_path = os.path.dirname(os.path.abspath(__file__))
-
 # load model
 model = Pipeline.create(
     task="yolo",
-    model_path=file_path + "/models/yolov5-s-coco-pruned75_quantized.onnx",
+    # model_path="/home/bioinlab/Desktop/carlosIgor/prothestic_ada_hand/ada_visual_ws/src/ada_visual_control/src/models/yolov5-s-coco-pruned75_quantized.onnx",
     # model_path="zoo:yolov5-s-coco-pruned75",
-    # model_path="zoo:yolov5-m-coco-pruned55.4block",
+    model_path="zoo:yolov5-m-coco-pruned55.4block",
     class_names="coco",
     num_cores=4,
     image_size=(640, 480)

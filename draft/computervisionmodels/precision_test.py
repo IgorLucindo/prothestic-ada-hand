@@ -12,8 +12,7 @@ focal_length = 510
 
 dict_objects = {
     'bottle': {'width': 60, 'grasp': 'Power'},
-    'cell phone': {'width': 70, 'grasp': 'Power'},
-    'banana': {'width': 30, 'grasp': 'Pinch'},
+    'banana': {'width': 40, 'grasp': 'Pinch'},
     'apple': {'width': 50, 'grasp': 'Power'},
 }
 
