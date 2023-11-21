@@ -20,10 +20,10 @@ newMsg = False
 processing = False
 
 dict_objects = {
-    'bottle': {'width': 60, 'grasp': 'Power'},
-    'cell phone': {'width': 70, 'grasp': 'Power'},
-    'banana': {'width': 30, 'grasp': 'Pinch'},
-    'apple': {'width': 50, 'grasp': 'Power'},
+    'bottle': {'width': 60, 'orientation': 'vertical', 'grasp': 'Power'},
+    'cell phone': {'width': 70, 'orientation': 'None', 'grasp': 'Power'},
+    'banana': {'width': 30, 'orientation': 'vertical', 'grasp': 'Pinch'},
+    'apple': {'width': 50, 'orientation': 'None', 'grasp': 'Power'},
 }
 
 curr_obj = CurrentObject(dict_objects, focal_length)
