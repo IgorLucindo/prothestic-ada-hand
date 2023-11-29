@@ -1,6 +1,0 @@
-path: ../../datasets/banana
-train: train/images
-val: valid/images
-
-nc: 1
-names: ['A banana']

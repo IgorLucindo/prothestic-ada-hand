@@ -1,1 +1,0 @@
-batching increased fps from 8 to 10

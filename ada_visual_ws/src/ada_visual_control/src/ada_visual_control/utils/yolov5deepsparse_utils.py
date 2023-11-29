@@ -3,15 +3,19 @@ import cv2
 from deepsparse import Pipeline
 
 
+models_path = "/home/bioinlab/Desktop/carlosIgor/prothestic_ada_hand/ada_visual_ws/src/ada_visual_control/src/models/"
+
 # load model
 model = Pipeline.create(
     task="yolo",
-    # model_path="/home/bioinlab/Desktop/carlosIgor/prothestic_ada_hand/ada_visual_ws/src/ada_visual_control/src/models/yolov5-s-coco-pruned75_quantized.onnx",
-    # model_path="zoo:yolov5-s-coco-pruned75",
-    model_path="zoo:yolov5-m-coco-pruned55.4block",
+    # model_path=models_path + "yolov5-s-coco-pruned75_quantized.onnx",
+    # model_path=models_path + "yolov5-s-coco-pruned75.onnx",
+    # model_path=models_path + "yolov5-m-coco-pruned55.4block.onnx",
+    model_path=models_path + "yolov5-l-coco-pruned90_quantized.onnx",
     class_names="coco",
     num_cores=4,
-    image_size=(640, 480)
+    # image_size=(640, 480)
+    image_size=(416, 416)
 )
 
 
