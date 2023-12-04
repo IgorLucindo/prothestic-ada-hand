@@ -6,7 +6,7 @@ from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import String
 from std_msgs.msg import Float32MultiArray
 from ada_visual_control.classes.currentObject import CurrentObject
-from ada_visual_control.utils.yolov5deepsparse_utils import convertFrameFormat, runModel
+from ada_visual_control.utils.ssdlitemobilenet_utils import convertFrameFormat, runModel
 
 
 # debug mode

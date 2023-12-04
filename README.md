@@ -2,7 +2,9 @@
 prothestic hand that grasps objecs automatically
 
 # Setup
-First, run the command bellow to install all the libraries needed to run the application:
+First, for uploading the arduino code to your board, open the file ``ada_hand.ino`` inside the arduino folder, select the board ``Arduino Mega or Mega 2560`` and upload.
+
+Now, to install all the libraries needed, just run the command bellow:
 ```
 $ pip install -r requirements.txt
 ```
