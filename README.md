@@ -2,12 +2,14 @@
 prothestic hand that grasps objecs automatically
 
 # Setup
-First, for uploading the arduino code to your board, open the file ``ada_hand.ino`` inside the arduino folder, select the board ``Arduino Mega or Mega 2560`` and upload.
-
-Now, to install all the libraries needed, just run the command bellow:
+First, to install all the libraries needed, just run the command bellow:
 ```
 $ pip install -r requirements.txt
 ```
+
+Now for installing the ros packages, follow the instructions in this link http://wiki.ros.org/ROS/Installation.
+
+The next step is to upload the arduino code to your board, for that, open the file ``ada_hand.ino`` inside the arduino folder, select the board ``Arduino Mega or Mega 2560`` and upload the code.
 
 After that, run the following commands to start and setup the ros workspace:
 ```
