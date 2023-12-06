@@ -1,5 +1,0 @@
-# ninja log v5
-0	35651	1697548987195847686	/home/bioinlab/Desktop/carlosIgor/computer vision/rotationDetection/yolo_obb_sim/src/yolov5_obb/scripts/utils/nms_rotated/build/temp.linux-x86_64-cpython-39/src/nms_rotated_cpu.o	245b39f44894adb9
-1	48627	1697549000119788955	/home/bioinlab/Desktop/carlosIgor/computer vision/rotationDetection/yolo_obb_sim/src/yolov5_obb/scripts/utils/nms_rotated/build/temp.linux-x86_64-cpython-39/src/nms_rotated_ext.o	21c1539626490c77
-0	37087	1697635852055395881	/home/bioinlab/Desktop/carlosIgor/yolov5_obb/utils/nms_rotated/build/temp.linux-x86_64-cpython-39/src/nms_rotated_cpu.o	1dc935a79620e8c8
-1	53578	1697635868551267845	/home/bioinlab/Desktop/carlosIgor/yolov5_obb/utils/nms_rotated/build/temp.linux-x86_64-cpython-39/src/nms_rotated_ext.o	caab0ee9e7125222
