@@ -1,5 +1,5 @@
-# Prothestic ada hand
-prothestic hand that grasps objecs automatically
+# Prothestic Ada Hand
+Budget prothestic hand that grasps objecs automatically.
 
 # Setup
 First, to install all the libraries needed, just run the command bellow:
